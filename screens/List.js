@@ -1,5 +1,12 @@
 import React, {useEffect} from 'react';
-import {StyleSheet, ScrollView, View, Button, TextInput} from 'react-native';
+import {
+  StyleSheet,
+  ScrollView,
+  View,
+  Button,
+  TextInput,
+  FlatList,
+} from 'react-native';
 import {useSelector, useDispatch} from 'react-redux';
 
 import {getMovies, searchData} from '../redux/action';
@@ -20,18 +27,16 @@ function List({navigation}) {
         placeholder="search..."
         onChangeText={search => dispatch(searchData(movies, token, search))}
       />
+      <Button
+        title="add movie"
+        onPress={() => navigation.navigate('AddFilm')}
+      />
       <ScrollView>
         {movies &&
           movies.map((el, index) => {
             return <Movie key={index} data={el} idx={el.id} />;
           })}
       </ScrollView>
-      <View>
-        <Button
-          title="add movie"
-          onPress={() => navigation.navigate('AddFilm')}
-        />
-      </View>
     </View>
   );
 }

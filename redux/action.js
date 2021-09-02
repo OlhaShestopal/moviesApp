@@ -1,5 +1,6 @@
 import {Alert} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {request} from '../api/request';
 
 export const CREATE_USER = 'CREATE_USER';
 export const CREATE_SESSION = 'CREATE_SESSION';
@@ -12,22 +13,20 @@ export const DELETE_MOVIE = 'DELETE_MOVIE';
 export const ADD_MOVIE = 'ADD_MOVIE';
 export const SEARCH_DATA = 'SEARCH_DATA';
 
+const API_LINK = 'http://10.0.2.2:8000/api/v1/';
 const API_USER = 'http://10.0.2.2:8000/api/v1/users';
 const API_SESSION = 'http://10.0.2.2:8000/api/v1/sessions';
 const API_MOVIES = 'http://10.0.2.2:8000/api/v1/movies';
+const SORT_MOVIES = 'http://10.0.2.2:8000/api/v1/movies?sort=title&order=DESC';
 
 export const createUser = data => {
-  console.log(data);
   try {
     return async dispatch => {
-      const res = await fetch(API_USER, {
+      const response = await request({
+        url: API_USER,
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
+        body: data,
       });
-      const response = await res.json();
       if (response.token) {
         AsyncStorage.setItem('@token', response.token);
         dispatch({
@@ -46,14 +45,11 @@ export const createUser = data => {
 export const createSession = data => {
   try {
     return async dispatch => {
-      const res = await fetch(API_SESSION, {
+      const response = await request({
+        url: API_SESSION,
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
+        body: data,
       });
-      const response = await res.json();
       if (response.token) {
         AsyncStorage.setItem('@token', response.token);
         dispatch({
@@ -83,17 +79,14 @@ export const checkTocken = () => {
   } catch (e) {}
 };
 
-export const getMovies = token => {
+export const getMovies = tokenValue => {
   try {
     return async dispatch => {
-      const res = await fetch(API_MOVIES, {
+      const response = await request({
+        url: SORT_MOVIES,
         method: 'GET',
-        headers: {
-          Authorization: token,
-          'Content-Type': 'application/json',
-        },
+        token: tokenValue,
       });
-      const response = await res.json();
       if (response.data) {
         dispatch({
           type: GET_MOVIES,
@@ -108,19 +101,14 @@ export const getMovies = token => {
   }
 };
 
-export const chooseMovie = (id, token) => {
-  console.log('action choose ' + id);
+export const chooseMovie = (id, tokenValue) => {
   try {
     return async dispatch => {
-      const res = await fetch(`${API_MOVIES}/${id}`, {
+      const response = await request({
+        url: `${API_MOVIES}/${id}`,
         method: 'GET',
-        headers: {
-          Authorization: token,
-          'Content-Type': 'application/json',
-        },
+        token: tokenValue,
       });
-
-      const response = await res.json();
       if (response.data) {
         dispatch({
           type: CHOOSE_MOVIE,
@@ -142,20 +130,16 @@ export const resetMovie = () => dispatch => {
   });
 };
 
-export const deleteMovie = (state, token, id) => {
+export const deleteMovie = (state, tokenValue, id) => {
   const newMovies = state.filter(el => el.id != id);
   console.log('newMovies ' + newMovies);
   try {
     return async dispatch => {
-      const res = await fetch(`${API_MOVIES}/${id}`, {
+      const response = await request({
+        url: `${API_MOVIES}/${id}`,
         method: 'DELETE',
-        headers: {
-          Authorization: token,
-          'Content-Type': 'application/json',
-        },
+        token: tokenValue,
       });
-      const response = await res.json();
-      console.log(response);
       if (response) {
         dispatch({
           type: DELETE_MOVIE,
@@ -170,22 +154,17 @@ export const deleteMovie = (state, token, id) => {
   }
 };
 
-export const addMovie = (data, token) => {
+export const addMovie = (data, tokenValue) => {
   const actorsArr = data.actors.split(',');
-  console.log('actorsArr' + actorsArr);
   data.actors = actorsArr;
   try {
     return async dispatch => {
-      const res = await fetch(API_MOVIES, {
+      const response = await request({
+        url: API_SESSION,
         method: 'POST',
-        headers: {
-          Authorization: token,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
+        token: tokenValue,
+        body: data,
       });
-      const response = await res.json();
-      console.log(response);
       if (response) {
         dispatch({
           type: ADD_MOVIE,
@@ -199,21 +178,27 @@ export const addMovie = (data, token) => {
   }
 };
 
-export const searchData = (state, token, value) => {
+export const searchData = (state, tokenValue, value) => {
+  const url = `${API_MOVIES}?search=${value}`;
+  console.log('value.langht ' + value.length);
+  console.log('value ' + typeof value);
+  let response;
   try {
     return async dispatch => {
-      const res = await fetch(
-        `${API_MOVIES}?search=${value}&limit=10&offset=0`,
-        {
-          method: 'GET',
-          headers: {
-            Authorization: token,
-            'Content-Type': 'application/json',
-          },
-        },
-      );
-      const response = await res.json();
-      console.log(response);
+      // if (value.lenght > 1) {
+      response = await request({
+        url: url,
+        method: 'GET',
+        token: tokenValue,
+      });
+      // } else {
+      //   response = await request({
+      //     url: SORT_MOVIES,
+      //     method: 'GET',
+      //     token: tokenValue,
+      //   });
+      // }
+
       if (response.data) {
         dispatch({
           type: SEARCH_DATA,

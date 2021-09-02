@@ -12,7 +12,6 @@ function Movie({data, idx}) {
 
   const handleOpen = id => {
     dispatch(chooseMovie(id, token));
-
     if (showMovie) {
       navigation.navigate('ItemInfo');
     }
