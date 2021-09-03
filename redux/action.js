@@ -183,22 +183,35 @@ export const searchData = (state, tokenValue, value) => {
   console.log('value.langht ' + value.length);
   console.log('value ' + typeof value);
   let response;
+
   try {
     return async dispatch => {
-      // if (value.lenght > 1) {
       response = await request({
         url: url,
         method: 'GET',
         token: tokenValue,
       });
-      // } else {
-      //   response = await request({
-      //     url: SORT_MOVIES,
-      //     method: 'GET',
-      //     token: tokenValue,
-      //   });
-      // }
-
+      console.log('MAX');
+      if (response.data) {
+        dispatch({
+          type: SEARCH_DATA,
+          payload: response.data,
+        });
+      } else {
+        Alert.alert('Error with search movie');
+      }
+    };
+  } catch (error) {
+    Alert.alert(error);
+  }
+  try {
+    return async dispatch => {
+      response = await request({
+        url: url,
+        method: 'GET',
+        token: tokenValue,
+      });
+      console.log('MAX');
       if (response.data) {
         dispatch({
           type: SEARCH_DATA,

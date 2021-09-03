@@ -10,7 +10,7 @@ import {
 import {useSelector, useDispatch} from 'react-redux';
 
 import {getMovies, searchData} from '../redux/action';
-import {Movie} from '../component/movei';
+import {Movie} from '../component/Movei';
 
 function List({navigation}) {
   const {token, movies} = useSelector(state => state.moviesReducer);
@@ -25,7 +25,7 @@ function List({navigation}) {
     <View>
       <TextInput
         placeholder="search..."
-        onChangeText={search => dispatch(searchData(movies, token, search))}
+        onPressIn={search => dispatch(searchData(movies, token, search))}
       />
       <Button
         title="add movie"
